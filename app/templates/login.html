@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login · Inventaris SMPM 22</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-card">
+      <div class="logo">M22</div>
+      <h1>Inventaris Sekolah</h1>
+      <p class="tagline">SMP Muhammadiyah 22 Setiabudi Pamulang</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <form method="post">
+        <div style="margin-bottom:0.9rem;">
+          <label for="username">Username</label>
+          <input id="username" name="username" required autofocus placeholder="admin">
+        </div>
+        <div style="margin-bottom:0.9rem;">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary" type="submit">Masuk</button>
+      </form>
+
+      <div class="hint">
+        Default login: <strong>admin</strong> / <strong>admin123</strong><br>
+        Data disimpan lokal (offline). Sinkronisasi ke Google Drive tersedia setelah login akun Google.
+      </div>
+    </div>
+  </div>
+</body>
+</html>

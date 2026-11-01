@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Pinjam Barang{% endblock %}
+{% block page_title %}Form Peminjaman{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <form method="post">
+    <div class="form-grid">
+      <div class="full">
+        <label>Barang</label>
+        <select name="barang_id" required>
+          <option value="">— Pilih barang tersedia —</option>
+          {% for b in barang_list %}
+          <option value="{{ b.id }}">{{ b.kode }} — {{ b.nama }} (tersedia: {{ b.jumlah_tersedia }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Nama Peminjam</label>
+        <input name="peminjam" required placeholder="Nama siswa / guru">
+      </div>
+      <div>
+        <label>Kelas / Unit</label>
+        <input name="kelas_unit" placeholder="Contoh: 8A / TU">
+      </div>
+      <div>
+        <label>Jumlah</label>
+        <input type="number" name="jumlah" min="1" value="1">
+      </div>
+      <div>
+        <label>Tanggal Pinjam</label>
+        <input type="date" name="tanggal_pinjam">
+      </div>
+      <div>
+        <label>Rencana Kembali</label>
+        <input type="date" name="tanggal_kembali_rencana">
+      </div>
+      <div class="full">
+        <label>Keterangan</label>
+        <textarea name="keterangan"></textarea>
+      </div>
+    </div>
+    <div class="btn-group" style="margin-top:1.25rem;">
+      <button class="btn btn-primary" type="submit">Simpan Peminjaman</button>
+      <a class="btn btn-secondary" href="{{ url_for('peminjaman.index') }}">Batal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

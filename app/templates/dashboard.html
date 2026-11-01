@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_sub %}Ringkasan inventaris {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="cards">
+  <div class="stat-card accent">
+    <div class="label">Jenis Barang</div>
+    <div class="value">{{ stats.total_barang }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Total Unit</div>
+    <div class="value">{{ stats.total_unit }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Unit Tersedia</div>
+    <div class="value">{{ stats.tersedia }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Sedang Dipinjam</div>
+    <div class="value">{{ stats.dipinjam }}</div>
+  </div>
+</div>
+
+<div class="split-2">
+  <div class="panel">
+    <div class="panel-header">
+      <h3>Barang Terbaru</h3>
+      <a class="btn btn-secondary btn-sm" href="{{ url_for('barang.tambah') }}">+ Tambah</a>
+    </div>
+    <div class="table-wrap">
+      {% if stats.recent %}
+      <table>
+        <thead>
+          <tr>
+            <th>Kode</th>
+            <th>Nama</th>
+            <th>Kategori</th>
+            <th>Kondisi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in stats.recent %}
+          <tr>
+            <td>{{ b.kode }}</td>
+            <td>{{ b.nama }}</td>
+            <td>{{ b.kategori_nama or '-' }}</td>
+            <td>
+              {% if b.kondisi == 'Baik' %}
+                <span class="badge badge-ok">{{ b.kondisi }}</span>
+              {% elif b.kondisi == 'Rusak' or b.kondisi == 'Hilang' %}
+                <span class="badge badge-bad">{{ b.kondisi }}</span>
+              {% else %}
+                <span class="badge badge-warn">{{ b.kondisi }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">Belum ada data barang. Mulai dengan menambahkan inventaris.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h3>Status Google Drive</h3>
+      <a class="btn btn-gold btn-sm" href="{{ url_for('sync.index') }}">Kelola Sync</a>
+    </div>
+    <p class="muted" style="margin-top:0;">
+      Database: <strong>MySQL</strong>
+      {% if drive.mysql_ok %}
+        ({{ drive.mysql_host }} / {{ drive.mysql_database }})
+      {% else %}
+        — <span class="badge badge-bad">tidak terhubung</span>
+      {% endif %}
+    </p>
+    <table>
+      <tr>
+        <td>Koneksi Drive</td>
+        <td>
+          {% if drive.connected %}
+            <span class="badge badge-online">Terhubung</span>
+          {% else %}
+            <span class="badge badge-offline">Belum terhubung</span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Akun Google</td>
+        <td>{{ drive.email or '-' }}</td>
+      </tr>
+      <tr>
+        <td>Folder Drive</td>
+        <td>{{ drive.folder }}</td>
+      </tr>
+      <tr>
+        <td>Backup remote</td>
+        <td>
+          {% if drive.remote_file %}
+            Ada ({{ drive.remote_file.modified }})
+          {% else %}
+            Belum ada backup
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Barang rusak/hilang</td>
+        <td><strong>{{ stats.rusak }}</strong></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+{% if stats.by_kategori %}
+<div class="panel">
+  <div class="panel-header"><h3>Distribusi per Kategori</h3></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Kategori</th><th>Jumlah Jenis</th></tr></thead>
+      <tbody>
+        {% for row in stats.by_kategori %}
+        <tr>
+          <td>{{ row.nama }}</td>
+          <td>{{ row.c }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

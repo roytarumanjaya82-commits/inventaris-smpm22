@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Kategori{% endblock %}
+{% block page_title %}Kategori Barang{% endblock %}
+
+{% block content %}
+<div class="split-2">
+  <div class="panel">
+    <div class="panel-header"><h3>Daftar Kategori</h3></div>
+    <table>
+      <thead><tr><th>Nama</th><th>Deskripsi</th></tr></thead>
+      <tbody>
+        {% for k in items %}
+        <tr>
+          <td>{{ k.nama }}</td>
+          <td>{{ k.deskripsi or '-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="panel">
+    <div class="panel-header"><h3>Tambah Kategori</h3></div>
+    <form method="post">
+      <div style="margin-bottom:0.9rem;">
+        <label>Nama</label>
+        <input name="nama" required>
+      </div>
+      <div style="margin-bottom:0.9rem;">
+        <label>Deskripsi</label>
+        <textarea name="deskripsi"></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit">Simpan</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

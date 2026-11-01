@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Laporan{% endblock %}
+{% block page_title %}Laporan Inventaris{% endblock %}
+{% block page_sub %}Cetak laporan resmi dengan kop surat sekolah{% endblock %}
+
+{% block content %}
+<div class="cards" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+  <div class="panel" style="margin:0;">
+    <div class="panel-header"><h3>Laporan Barang (Kop Surat)</h3></div>
+    <p class="muted">Laporan inventaris resmi berlogo SMP Muhammadiyah 22 Setiabudi Pamulang, siap dicetak/PDF.</p>
+    <div class="btn-group">
+      <a class="btn btn-primary" href="{{ url_for('laporan.barang') }}">Buka Laporan Barang</a>
+    </div>
+  </div>
+  <div class="panel" style="margin:0;">
+    <div class="panel-header"><h3>Export Excel</h3></div>
+    <p class="muted">Unduh data barang & peminjaman dalam format spreadsheet untuk arsip/analisis.</p>
+    <div class="btn-group">
+      <a class="btn btn-secondary" href="{{ url_for('laporan.export_excel') }}">Download Excel</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

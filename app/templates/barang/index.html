@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Data Barang{% endblock %}
+{% block page_title %}Data Barang{% endblock %}
+{% block page_sub %}Kelola inventaris sekolah{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="panel-header">
+    <h3>Daftar Inventaris</h3>
+    <div class="btn-group">
+      <a class="btn btn-gold" href="{{ url_for('barang.blanko_excel') }}">⬇ Unduh Blanko Excel</a>
+      <a class="btn btn-primary" href="{{ url_for('barang.tambah') }}">+ Tambah Barang</a>
+    </div>
+  </div>
+
+  <div class="import-box">
+    <div>
+      <strong>Import dari Excel</strong>
+      <p class="muted" style="margin:0.25rem 0 0;">
+        1) Unduh blanko Excel → 2) Isi data → 3) Pilih file .xlsx → 4) Import
+      </p>
+      <div class="btn-group" style="margin-top:0.65rem;">
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('barang.blanko_excel') }}">Unduh Blanko Excel</a>
+      </div>
+    </div>
+    <form class="import-form" method="post" action="{{ url_for('barang.import_excel') }}" enctype="multipart/form-data">
+      <input type="file" name="file_excel" accept=".xlsx,.xlsm" required>
+      <button class="btn btn-gold" type="submit">Import Blanko Excel</button>
+    </form>
+  </div>
+
+  <form class="filters" method="get">
+    <input type="text" name="q" value="{{ q }}" placeholder="Cari kode / nama...">
+    <select name="kategori_id">
+      <option value="">Semua kategori</option>
+      {% for k in kategori_list %}
+      <option value="{{ k.id }}" {% if kategori_id == k.id %}selected{% endif %}>{{ k.nama }}</option>
+      {% endfor %}
+    </select>
+    <select name="kondisi">
+      <option value="">Semua kondisi</option>
+      {% for k in ['Baik','Rusak Ringan','Rusak','Hilang'] %}
+      <option value="{{ k }}" {% if kondisi == k %}selected{% endif %}>{{ k }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-secondary" type="submit">Filter</button>
+  </form>
+
+  <div class="table-wrap">
+    {% if items %}
+    <table>
+      <thead>
+        <tr>
+          <th>Kode</th>
+          <th>Nama</th>
+          <th>Kategori</th>
+          <th>Lokasi</th>
+          <th>Stok</th>
+          <th>Kondisi</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in items %}
+        <tr>
+          <td><strong>{{ b.kode }}</strong></td>
+          <td>{{ b.nama }}</td>
+          <td>{{ b.kategori_nama or '-' }}</td>
+          <td>{{ b.lokasi_nama or '-' }}</td>
+          <td>{{ b.jumlah_tersedia }} / {{ b.jumlah }} {{ b.satuan }}</td>
+          <td>
+            {% if b.kondisi == 'Baik' %}
+              <span class="badge badge-ok">{{ b.kondisi }}</span>
+            {% elif b.kondisi in ['Rusak','Hilang'] %}
+              <span class="badge badge-bad">{{ b.kondisi }}</span>
+            {% else %}
+              <span class="badge badge-warn">{{ b.kondisi }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="btn-group">
+              <a class="btn btn-secondary btn-sm" href="{{ url_for('barang.edit', barang_id=b.id) }}">Edit</a>
+              <form method="post" action="{{ url_for('barang.hapus', barang_id=b.id) }}" onsubmit="return confirm('Hapus barang ini?');">
+                <button class="btn btn-danger btn-sm" type="submit">Hapus</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">Tidak ada data barang. Unduh blanko Excel atau klik + Tambah Barang.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

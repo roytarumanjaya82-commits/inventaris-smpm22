@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Google Drive{% endblock %}
+{% block page_title %}Sinkronisasi Google Drive{% endblock %}
+{% block page_sub %}Backup & restore data MySQL ke akun Google Drive{% endblock %}
+
+{% block content %}
+<div class="split-2">
+  <div class="panel">
+    <div class="panel-header"><h3>Status Koneksi</h3></div>
+    <table>
+      <tr>
+        <td>MySQL</td>
+        <td>
+          {% if status.mysql_ok %}
+            <span class="badge badge-ok">Terhubung</span>
+            {{ status.mysql_host }} / {{ status.mysql_database }}
+            ({{ status.barang_count }} barang)
+          {% else %}
+            <span class="badge badge-bad">Gagal</span>
+            {{ status.mysql_error }}
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Mode offline paksa</td>
+        <td>{{ 'Ya' if status.offline_mode else 'Tidak' }}</td>
+      </tr>
+      <tr>
+        <td>client_secret.json</td>
+        <td>
+          {% if status.secrets_ok %}
+            <span class="badge badge-ok">Ada</span>
+          {% else %}
+            <span class="badge badge-bad">Belum ada</span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Login Google</td>
+        <td>
+          {% if status.connected %}
+            <span class="badge badge-online">Terhubung</span>
+          {% else %}
+            <span class="badge badge-offline">Belum</span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Email</td>
+        <td>{{ status.email or '-' }}</td>
+      </tr>
+      <tr>
+        <td>Folder Drive</td>
+        <td><code>{{ status.folder }}</code></td>
+      </tr>
+      <tr>
+        <td>File backup</td>
+        <td><code>{{ status.db_filename }}</code></td>
+      </tr>
+      <tr>
+        <td>Backup lokal (JSON)</td>
+        <td>
+          {% if status.local_backup_exists %}
+            {{ (status.local_backup_size / 1024)|round(1) }} KB
+          {% else %}
+            Belum ada
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Backup remote</td>
+        <td>
+          {% if status.remote_file %}
+            Ada · {{ status.remote_file.modified }}
+          {% else %}
+            Belum ada
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+
+    <div class="btn-group" style="margin-top:1.25rem;">
+      {% if not status.connected %}
+        <a class="btn btn-gold" href="{{ url_for('sync.google_login') }}">Login dengan Google Drive</a>
+      {% else %}
+        <form method="post" action="{{ url_for('sync.upload') }}">
+          <button class="btn btn-primary" type="submit">Upload ke Drive (Backup)</button>
+        </form>
+        <form method="post" action="{{ url_for('sync.download') }}" onsubmit="return confirm('Download akan menimpa data MySQL saat ini. Lanjutkan?');">
+          <button class="btn btn-secondary" type="submit">Download dari Drive (Restore)</button>
+        </form>
+        <form method="post" action="{{ url_for('sync.google_logout') }}">
+          <button class="btn btn-danger" type="submit">Putus Koneksi Google</button>
+        </form>
+      {% endif %}
+    </div>
+
+    <p class="muted" style="margin-top:1.25rem;font-size:0.88rem;">
+      Data utama tersimpan di <strong>MySQL</strong>. Upload ke Drive mengekspor data ke file JSON
+      lalu mengunggahnya ke folder <strong>{{ status.folder }}</strong>.
+      Download akan mengimpor ulang JSON tersebut ke MySQL.
+    </p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><h3>Log Sinkronisasi</h3></div>
+    {% if logs %}
+    <table>
+      <thead>
+        <tr><th>Waktu</th><th>Aksi</th><th>Status</th><th>Pesan</th></tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td>{{ log.created_at }}</td>
+          <td>{{ log.aksi }}</td>
+          <td>
+            {% if log.status == 'sukses' %}
+              <span class="badge badge-ok">sukses</span>
+            {% else %}
+              <span class="badge badge-bad">gagal</span>
+            {% endif %}
+          </td>
+          <td>{{ log.pesan }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">Belum ada aktivitas sinkronisasi.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-header"><h3>Cara Setup Google Drive</h3></div>
+  <ol style="margin:0;padding-left:1.2rem;line-height:1.7;color:var(--muted);">
+    <li>Buka <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a>.</li>
+    <li>Buat project baru, aktifkan <strong>Google Drive API</strong>.</li>
+    <li>Buat OAuth Client ID tipe <strong>Web application</strong>.</li>
+    <li>Tambahkan Authorized redirect URI: <code>http://127.0.0.1:5000/sync/google/callback</code></li>
+    <li>Unduh JSON credentials, simpan sebagai <code>credentials/client_secret.json</code>.</li>
+    <li>Restart aplikasi, lalu klik <strong>Login dengan Google Drive</strong>.</li>
+  </ol>
+</div>
+{% endblock %}

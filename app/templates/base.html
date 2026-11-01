@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Inventaris{% endblock %} · {{ school_short }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-top">
+          <img class="brand-logo" src="{{ url_for('static', filename='img/logo-smpm22.png') }}" alt="Logo SMPM 22">
+          <button type="button" class="menu-close" id="menuClose" aria-label="Tutup menu">✕</button>
+        </div>
+        <h1>{{ school_short }}</h1>
+        <p>Sistem Inventaris Sekolah</p>
+      </div>
+      <nav class="nav">
+        <div class="section-label">Menu</div>
+        <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{{ url_for('barang.index') }}" class="{% if request.endpoint and request.endpoint.startswith('barang.') and request.endpoint not in ['barang.kategori','barang.lokasi'] %}active{% endif %}">Data Barang</a>
+        <a href="{{ url_for('peminjaman.index') }}" class="{% if request.endpoint and request.endpoint.startswith('peminjaman.') %}active{% endif %}">Peminjaman</a>
+        <a href="{{ url_for('laporan.index') }}" class="{% if request.endpoint and request.endpoint.startswith('laporan.') %}active{% endif %}">Laporan</a>
+
+        <div class="section-label">Master Data</div>
+        <a href="{{ url_for('barang.kategori') }}" class="{% if request.endpoint == 'barang.kategori' %}active{% endif %}">Kategori</a>
+        <a href="{{ url_for('barang.lokasi') }}" class="{% if request.endpoint == 'barang.lokasi' %}active{% endif %}">Lokasi</a>
+
+        <div class="section-label">Sinkronisasi</div>
+        <a href="{{ url_for('sync.index') }}" class="{% if request.endpoint and request.endpoint.startswith('sync.') %}active{% endif %}">Google Drive</a>
+        <a href="{{ url_for('auth.logout') }}">Keluar</a>
+      </nav>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="menu-toggle" id="menuToggle" aria-label="Buka menu">☰</button>
+          <div>
+            <h2>{% block page_title %}Dashboard{% endblock %}</h2>
+            <div class="sub">{% block page_sub %}{{ school_name }}{% endblock %}</div>
+          </div>
+        </div>
+        <div class="user-chip">
+          <div class="avatar">{{ current_user.nama_lengkap[:1]|upper }}</div>
+          <div class="user-meta">
+            <div style="font-weight:600;font-size:0.9rem;">{{ current_user.nama_lengkap }}</div>
+            <div style="font-size:0.75rem;color:var(--muted);">{{ current_user.role }}</div>
+          </div>
+          {% if drive_connected %}
+            <span class="badge badge-online">Drive ON</span>
+          {% else %}
+            <span class="badge badge-offline">Offline</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="flash-wrap">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endwith %}
+      </div>
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  <script>
+    (function () {
+      var sidebar = document.getElementById("sidebar");
+      var backdrop = document.getElementById("sidebarBackdrop");
+      var openBtn = document.getElementById("menuToggle");
+      var closeBtn = document.getElementById("menuClose");
+      function openMenu() {
+        sidebar.classList.add("open");
+        backdrop.classList.add("show");
+      }
+      function closeMenu() {
+        sidebar.classList.remove("open");
+        backdrop.classList.remove("show");
+      }
+      if (openBtn) openBtn.addEventListener("click", openMenu);
+      if (closeBtn) closeBtn.addEventListener("click", closeMenu);
+      if (backdrop) backdrop.addEventListener("click", closeMenu);
+    })();
+  </script>
+</body>
+</html>

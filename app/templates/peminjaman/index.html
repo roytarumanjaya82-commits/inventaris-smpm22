@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Peminjaman{% endblock %}
+{% block page_title %}Peminjaman Barang{% endblock %}
+{% block page_sub %}Catat peminjaman dan pengembalian inventaris{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="panel-header">
+    <h3>Riwayat Peminjaman</h3>
+    <a class="btn btn-primary" href="{{ url_for('peminjaman.tambah') }}">+ Pinjam Barang</a>
+  </div>
+
+  <form class="filters" method="get">
+    <select name="status">
+      <option value="">Semua status</option>
+      <option value="Dipinjam" {% if status == 'Dipinjam' %}selected{% endif %}>Dipinjam</option>
+      <option value="Dikembalikan" {% if status == 'Dikembalikan' %}selected{% endif %}>Dikembalikan</option>
+    </select>
+    <button class="btn btn-secondary" type="submit">Filter</button>
+  </form>
+
+  <div class="table-wrap">
+    {% if items %}
+    <table>
+      <thead>
+        <tr>
+          <th>Barang</th>
+          <th>Peminjam</th>
+          <th>Kelas/Unit</th>
+          <th>Jumlah</th>
+          <th>Tgl Pinjam</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in items %}
+        <tr>
+          <td>
+            <strong>{{ p.barang_kode }}</strong><br>
+            <span class="muted">{{ p.barang_nama }}</span>
+          </td>
+          <td>{{ p.peminjam }}</td>
+          <td>{{ p.kelas_unit or '-' }}</td>
+          <td>{{ p.jumlah }}</td>
+          <td>{{ p.tanggal_pinjam }}</td>
+          <td>
+            {% if p.status == 'Dipinjam' %}
+              <span class="badge badge-warn">Dipinjam</span>
+            {% else %}
+              <span class="badge badge-ok">Dikembalikan</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if p.status == 'Dipinjam' %}
+            <form method="post" action="{{ url_for('peminjaman.kembalikan', peminjaman_id=p.id) }}">
+              <button class="btn btn-primary btn-sm" type="submit">Kembalikan</button>
+            </form>
+            {% else %}
+              <span class="muted">{{ p.tanggal_kembali_aktual or '-' }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">Belum ada data peminjaman.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Inventaris · {{ school.nama }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/laporan.css') }}">
+</head>
+<body class="{% if print_mode %}print-mode{% endif %}">
+  <div class="toolbar no-print">
+    <a class="btn ghost" href="{{ url_for('laporan.index') }}">← Kembali</a>
+    <form class="filters" method="get">
+      <input type="text" name="q" value="{{ q }}" placeholder="Cari kode / nama...">
+      <select name="kategori_id">
+        <option value="">Semua kategori</option>
+        {% for k in kategori_list %}
+        <option value="{{ k.id }}" {% if kategori_id == k.id %}selected{% endif %}>{{ k.nama }}</option>
+        {% endfor %}
+      </select>
+      <select name="kondisi">
+        <option value="">Semua kondisi</option>
+        {% for k in ['Baik','Rusak Ringan','Rusak','Hilang'] %}
+        <option value="{{ k }}" {% if kondisi == k %}selected{% endif %}>{{ k }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn" type="submit">Terapkan</button>
+    </form>
+    <button class="btn primary" type="button" onclick="window.print()">Cetak / PDF</button>
+  </div>
+
+  <article class="sheet">
+    <header class="kop">
+      <img class="kop-logo" src="{{ url_for('static', filename='img/logo-smpm22.png') }}" alt="Logo SMP Muhammadiyah 22">
+      <div class="kop-text">
+        <div class="org">MAJELIS PENDIDIKAN DASAR DAN MENENGAH</div>
+        <div class="org">PIMPINAN CABANG MUHAMMADIYAH PAMULANG</div>
+        <h1>{{ school.nama }}</h1>
+        <p class="alamat">{{ school.alamat }}</p>
+        <p class="meta-line">
+          NPSN: {{ school.npsn }}
+          {% if school.website %} · Website: {{ school.website }}{% endif %}
+        </p>
+      </div>
+    </header>
+    <div class="kop-line"></div>
+    <div class="kop-line thin"></div>
+
+    <section class="judul">
+      <h2>LAPORAN DATA INVENTARIS BARANG</h2>
+      <p>Dokumen resmi inventaris sarana & prasarana sekolah</p>
+    </section>
+
+    <section class="info-grid">
+      <div>
+        <span>Tanggal Cetak</span>
+        <strong>{{ tanggal_cetak }}</strong>
+      </div>
+      <div>
+        <span>Dicetak Oleh</span>
+        <strong>{{ petugas }}</strong>
+      </div>
+      <div>
+        <span>Jumlah Jenis Barang</span>
+        <strong>{{ stats.total_jenis }}</strong>
+      </div>
+      <div>
+        <span>Total Unit</span>
+        <strong>{{ stats.total_unit }}</strong>
+      </div>
+    </section>
+
+    <section class="stat-row">
+      <div class="stat">
+        <div class="label">Unit Tersedia</div>
+        <div class="value">{{ stats.tersedia }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Unit Dipinjam</div>
+        <div class="value">{{ stats.dipinjam_unit }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Kategori Tercatat</div>
+        <div class="value">{{ stats.by_kategori|length }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Variasi Kondisi</div>
+        <div class="value">{{ stats.by_kondisi|length }}</div>
+      </div>
+    </section>
+
+    {% if stats.by_kategori or stats.by_kondisi %}
+    <section class="split">
+      <div>
+        <h3>Ringkasan per Kategori</h3>
+        <table class="mini">
+          <thead><tr><th>Kategori</th><th>Jenis</th></tr></thead>
+          <tbody>
+            {% for nama, jumlah in stats.by_kategori %}
+            <tr><td>{{ nama }}</td><td>{{ jumlah }}</td></tr>
+            {% else %}
+            <tr><td colspan="2">Belum ada data</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3>Ringkasan per Kondisi</h3>
+        <table class="mini">
+          <thead><tr><th>Kondisi</th><th>Jenis</th></tr></thead>
+          <tbody>
+            {% for nama, jumlah in stats.by_kondisi %}
+            <tr><td>{{ nama }}</td><td>{{ jumlah }}</td></tr>
+            {% else %}
+            <tr><td colspan="2">Belum ada data</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    {% endif %}
+
+    <section>
+      <h3>Daftar Inventaris</h3>
+      <table class="data">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Kode</th>
+            <th>Nama Barang</th>
+            <th>Kategori</th>
+            <th>Lokasi</th>
+            <th>Jumlah</th>
+            <th>Tersedia</th>
+            <th>Kondisi</th>
+            <th>Sumber</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in items %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ b.kode }}</td>
+            <td>{{ b.nama }}</td>
+            <td>{{ b.kategori_nama or '-' }}</td>
+            <td>{{ b.lokasi_nama or '-' }}</td>
+            <td>{{ b.jumlah }} {{ b.satuan }}</td>
+            <td>{{ b.jumlah_tersedia }}</td>
+            <td>{{ b.kondisi }}</td>
+            <td>{{ b.sumber or '-' }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="9" class="empty">Belum ada data barang inventaris.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="penutup">
+      <p>
+        Demikian laporan inventaris barang ini dibuat dengan sebenar-benarnya untuk digunakan
+        sebagaimana mestinya.
+      </p>
+      <div class="ttd">
+        <div class="ttd-box">
+          <p>{{ school.kota }}, {{ tanggal_cetak }}</p>
+          <p>Mengetahui,</p>
+          <p><strong>Kepala Sekolah</strong></p>
+          <div class="space"></div>
+          <p class="nama">{{ school.kepala }}</p>
+          <p class="nbm">NBM/NIP. {{ school.nbm_kepala }}</p>
+        </div>
+        <div class="ttd-box">
+          <p>&nbsp;</p>
+          <p>Petugas Inventaris,</p>
+          <p><strong>&nbsp;</strong></p>
+          <div class="space"></div>
+          <p class="nama">{{ petugas }}</p>
+          <p class="nbm">Sistem Inventaris SMPM 22</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer-note">
+      Dicetak otomatis dari Sistem Inventaris {{ school.nama }} · {{ waktu_cetak }}
+    </footer>
+  </article>
+
+  {% if print_mode %}
+  <script>window.addEventListener('load', function () { window.print(); });</script>
+  {% endif %}
+</body>
+</html>

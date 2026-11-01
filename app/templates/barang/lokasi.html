@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Lokasi{% endblock %}
+{% block page_title %}Lokasi Penyimpanan{% endblock %}
+
+{% block content %}
+<div class="split-2">
+  <div class="panel">
+    <div class="panel-header"><h3>Daftar Lokasi</h3></div>
+    <table>
+      <thead><tr><th>Nama</th><th>Gedung</th><th>Keterangan</th></tr></thead>
+      <tbody>
+        {% for l in items %}
+        <tr>
+          <td>{{ l.nama }}</td>
+          <td>{{ l.gedung or '-' }}</td>
+          <td>{{ l.keterangan or '-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="panel">
+    <div class="panel-header"><h3>Tambah Lokasi</h3></div>
+    <form method="post">
+      <div style="margin-bottom:0.9rem;">
+        <label>Nama Lokasi</label>
+        <input name="nama" required>
+      </div>
+      <div style="margin-bottom:0.9rem;">
+        <label>Gedung</label>
+        <input name="gedung">
+      </div>
+      <div style="margin-bottom:0.9rem;">
+        <label>Keterangan</label>
+        <textarea name="keterangan"></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit">Simpan</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

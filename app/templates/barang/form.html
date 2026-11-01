@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <form method="post">
+    <div class="form-grid">
+      <div>
+        <label>Kode Barang</label>
+        <input name="kode" required value="{{ item.kode if item else kode_default }}">
+      </div>
+      <div>
+        <label>Nama Barang</label>
+        <input name="nama" required value="{{ item.nama if item else '' }}" placeholder="Contoh: Laptop Acer Aspire">
+      </div>
+      <div>
+        <label>Kategori</label>
+        <select name="kategori_id">
+          <option value="">— Pilih —</option>
+          {% for k in kategori_list %}
+          <option value="{{ k.id }}" {% if item and item.kategori_id == k.id %}selected{% endif %}>{{ k.nama }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Lokasi</label>
+        <select name="lokasi_id">
+          <option value="">— Pilih —</option>
+          {% for l in lokasi_list %}
+          <option value="{{ l.id }}" {% if item and item.lokasi_id == l.id %}selected{% endif %}>{{ l.nama }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Jumlah</label>
+        <input type="number" name="jumlah" min="0" value="{{ item.jumlah if item else 1 }}">
+      </div>
+      <div>
+        <label>Satuan</label>
+        <input name="satuan" value="{{ item.satuan if item else 'unit' }}">
+      </div>
+      <div>
+        <label>Kondisi</label>
+        <select name="kondisi">
+          {% for k in ['Baik','Rusak Ringan','Rusak','Hilang'] %}
+          <option value="{{ k }}" {% if item and item.kondisi == k %}selected{% endif %}>{{ k }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Sumber</label>
+        <input name="sumber" value="{{ item.sumber if item else '' }}" placeholder="BOS / Hibah / Mandiri">
+      </div>
+      <div>
+        <label>Tahun Perolehan</label>
+        <input type="number" name="tahun_perolehan" value="{{ item.tahun_perolehan if item else '' }}" placeholder="2024">
+      </div>
+      <div>
+        <label>Harga Perolehan (Rp)</label>
+        <input type="number" step="0.01" name="harga_perolehan" value="{{ item.harga_perolehan if item else 0 }}">
+      </div>
+      <div class="full">
+        <label>Keterangan</label>
+        <textarea name="keterangan">{{ item.keterangan if item else '' }}</textarea>
+      </div>
+    </div>
+    <div class="btn-group" style="margin-top:1.25rem;">
+      <button class="btn btn-primary" type="submit">Simpan</button>
+      <a class="btn btn-secondary" href="{{ url_for('barang.index') }}">Batal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
