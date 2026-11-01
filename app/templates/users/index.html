@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Administrator{% endblock %}
+{% block page_title %}Administrator Inventaris{% endblock %}
+{% block page_sub %}Kelola akun admin & petugas sistem inventaris{% endblock %}
+
+{% block content %}
+<div class="split-2">
+  <div class="panel">
+    <div class="panel-header"><h3>Daftar Administrator</h3></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Nama Lengkap</th>
+            <th>Role</th>
+            <th>Email</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in items %}
+          <tr>
+            <td><strong>{{ u.username }}</strong></td>
+            <td>{{ u.nama_lengkap }}</td>
+            <td>
+              {% if u.role == 'admin' %}
+                <span class="badge badge-ok">admin</span>
+              {% else %}
+                <span class="badge badge-info">petugas</span>
+              {% endif %}
+            </td>
+            <td>{{ u.email or '-' }}</td>
+            <td>
+              <div class="btn-group">
+                <a class="btn btn-secondary btn-sm" href="{{ url_for('users.index', edit=u.id) }}">Edit</a>
+                {% if u.id != current_user.id %}
+                <form method="post" action="{{ url_for('users.hapus', user_id=u.id) }}" onsubmit="return confirm('Hapus akun {{ u.username }}?');">
+                  <button class="btn btn-danger btn-sm" type="submit">Hapus</button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="empty">Belum ada data administrator.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h3>{{ 'Edit Administrator' if edit_item else 'Tambah Administrator' }}</h3>
+    </div>
+    <form method="post">
+      {% if edit_item %}
+      <input type="hidden" name="id" value="{{ edit_item.id }}">
+      {% endif %}
+
+      <div style="margin-bottom:0.9rem;">
+        <label>Username</label>
+        {% if edit_item %}
+        <input value="{{ edit_item.username }}" disabled>
+        <input type="hidden" name="username" value="{{ edit_item.username }}">
+        {% else %}
+        <input name="username" required placeholder="contoh: petugas1">
+        {% endif %}
+      </div>
+
+      <div style="margin-bottom:0.9rem;">
+        <label>Nama Lengkap</label>
+        <input name="nama_lengkap" required value="{{ edit_item.nama_lengkap if edit_item else '' }}">
+      </div>
+
+      <div style="margin-bottom:0.9rem;">
+        <label>Email</label>
+        <input type="email" name="email" value="{{ edit_item.email if edit_item and edit_item.email else '' }}" placeholder="opsional">
+      </div>
+
+      <div style="margin-bottom:0.9rem;">
+        <label>Role</label>
+        <select name="role">
+          <option value="admin" {% if edit_item and edit_item.role == 'admin' %}selected{% endif %}>Administrator</option>
+          <option value="petugas" {% if not edit_item or edit_item.role == 'petugas' %}selected{% endif %}>Petugas Inventaris</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:0.9rem;">
+        <label>Password {% if edit_item %}<span class="muted">(kosongkan jika tidak diubah)</span>{% endif %}</label>
+        <input type="password" name="password" {% if not edit_item %}required{% endif %} minlength="6" placeholder="minimal 6 karakter">
+      </div>
+
+      <div style="margin-bottom:0.9rem;">
+        <label>Konfirmasi Password</label>
+        <input type="password" name="password2" {% if not edit_item %}required{% endif %} minlength="6">
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" type="submit">{{ 'Perbarui' if edit_item else 'Simpan' }}</button>
+        {% if edit_item %}
+        <a class="btn btn-secondary" href="{{ url_for('users.index') }}">Batal</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

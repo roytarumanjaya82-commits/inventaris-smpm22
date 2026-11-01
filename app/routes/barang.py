@@ -156,14 +156,43 @@ def kategori():
     if request.method == "POST":
         nama = request.form.get("nama", "").strip()
         deskripsi = request.form.get("deskripsi", "").strip()
+        edit_id = request.form.get("id") or None
         if nama:
             try:
-                models.add_kategori(nama, deskripsi)
-                flash("Kategori ditambahkan.", "success")
+                if edit_id:
+                    models.update_kategori(int(edit_id), nama, deskripsi)
+                    flash("Kategori berhasil diperbarui.", "success")
+                else:
+                    models.add_kategori(nama, deskripsi)
+                    flash("Kategori ditambahkan.", "success")
             except Exception as exc:
                 flash(f"Gagal: {exc}", "danger")
         return redirect(url_for("barang.kategori"))
-    return render_template("barang/kategori.html", items=models.list_kategori())
+
+    edit_item = None
+    edit_id = request.args.get("edit")
+    if edit_id:
+        edit_item = models.get_kategori(int(edit_id))
+        if not edit_item:
+            flash("Kategori tidak ditemukan.", "warning")
+            return redirect(url_for("barang.kategori"))
+
+    return render_template(
+        "barang/kategori.html",
+        items=models.list_kategori(),
+        edit_item=edit_item,
+    )
+
+
+@barang_bp.route("/kategori/<int:kategori_id>/hapus", methods=["POST"])
+@login_required
+def hapus_kategori(kategori_id):
+    try:
+        models.delete_kategori(kategori_id)
+        flash("Kategori dihapus.", "info")
+    except Exception as exc:
+        flash(f"Gagal menghapus kategori: {exc}", "danger")
+    return redirect(url_for("barang.kategori"))
 
 
 @barang_bp.route("/lokasi", methods=["GET", "POST"])
@@ -173,11 +202,40 @@ def lokasi():
         nama = request.form.get("nama", "").strip()
         gedung = request.form.get("gedung", "").strip()
         keterangan = request.form.get("keterangan", "").strip()
+        edit_id = request.form.get("id") or None
         if nama:
             try:
-                models.add_lokasi(nama, gedung, keterangan)
-                flash("Lokasi ditambahkan.", "success")
+                if edit_id:
+                    models.update_lokasi(int(edit_id), nama, gedung, keterangan)
+                    flash("Lokasi berhasil diperbarui.", "success")
+                else:
+                    models.add_lokasi(nama, gedung, keterangan)
+                    flash("Lokasi ditambahkan.", "success")
             except Exception as exc:
                 flash(f"Gagal: {exc}", "danger")
         return redirect(url_for("barang.lokasi"))
-    return render_template("barang/lokasi.html", items=models.list_lokasi())
+
+    edit_item = None
+    edit_id = request.args.get("edit")
+    if edit_id:
+        edit_item = models.get_lokasi(int(edit_id))
+        if not edit_item:
+            flash("Lokasi tidak ditemukan.", "warning")
+            return redirect(url_for("barang.lokasi"))
+
+    return render_template(
+        "barang/lokasi.html",
+        items=models.list_lokasi(),
+        edit_item=edit_item,
+    )
+
+
+@barang_bp.route("/lokasi/<int:lokasi_id>/hapus", methods=["POST"])
+@login_required
+def hapus_lokasi(lokasi_id):
+    try:
+        models.delete_lokasi(lokasi_id)
+        flash("Lokasi dihapus.", "info")
+    except Exception as exc:
+        flash(f"Gagal menghapus lokasi: {exc}", "danger")
+    return redirect(url_for("barang.lokasi"))

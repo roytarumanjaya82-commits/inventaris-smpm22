@@ -37,6 +37,7 @@ hiddenimports = [
     "app.routes.peminjaman",
     "app.routes.sync",
     "app.routes.laporan",
+    "app.routes.users",
     "app.services",
     "app.services.google_drive",
     "app.services.backup",

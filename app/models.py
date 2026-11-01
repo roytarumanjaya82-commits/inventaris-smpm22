@@ -50,12 +50,34 @@ def list_kategori():
     return [dict(r) for r in rows]
 
 
+def get_kategori(kategori_id):
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT * FROM kategori WHERE id = %s", (kategori_id,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
 def add_kategori(nama, deskripsi=""):
     with db_session() as conn:
         conn.execute(
             "INSERT INTO kategori (nama, deskripsi) VALUES (%s, %s)",
             (nama, deskripsi),
         )
+
+
+def update_kategori(kategori_id, nama, deskripsi=""):
+    with db_session() as conn:
+        conn.execute(
+            "UPDATE kategori SET nama = %s, deskripsi = %s WHERE id = %s",
+            (nama, deskripsi, kategori_id),
+        )
+
+
+def delete_kategori(kategori_id):
+    with db_session() as conn:
+        conn.execute("DELETE FROM kategori WHERE id = %s", (kategori_id,))
 
 
 # --- Lokasi ---
@@ -66,12 +88,34 @@ def list_lokasi():
     return [dict(r) for r in rows]
 
 
+def get_lokasi(lokasi_id):
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT * FROM lokasi WHERE id = %s", (lokasi_id,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
 def add_lokasi(nama, gedung="", keterangan=""):
     with db_session() as conn:
         conn.execute(
             "INSERT INTO lokasi (nama, gedung, keterangan) VALUES (%s, %s, %s)",
             (nama, gedung, keterangan),
         )
+
+
+def update_lokasi(lokasi_id, nama, gedung="", keterangan=""):
+    with db_session() as conn:
+        conn.execute(
+            "UPDATE lokasi SET nama = %s, gedung = %s, keterangan = %s WHERE id = %s",
+            (nama, gedung, keterangan, lokasi_id),
+        )
+
+
+def delete_lokasi(lokasi_id):
+    with db_session() as conn:
+        conn.execute("DELETE FROM lokasi WHERE id = %s", (lokasi_id,))
 
 
 # --- Barang ---
@@ -375,3 +419,55 @@ def list_users():
     ).fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+
+def get_user(user_id):
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT id, username, nama_lengkap, role, email, created_at FROM users WHERE id = %s",
+        (user_id,),
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def update_user(user_id, nama_lengkap, role="petugas", email="", password=None):
+    with db_session() as conn:
+        if password:
+            conn.execute(
+                """
+                UPDATE users
+                SET nama_lengkap = %s, role = %s, email = %s, password_hash = %s
+                WHERE id = %s
+                """,
+                (
+                    nama_lengkap,
+                    role,
+                    email,
+                    generate_password_hash(password),
+                    user_id,
+                ),
+            )
+        else:
+            conn.execute(
+                """
+                UPDATE users
+                SET nama_lengkap = %s, role = %s, email = %s
+                WHERE id = %s
+                """,
+                (nama_lengkap, role, email, user_id),
+            )
+
+
+def delete_user(user_id):
+    with db_session() as conn:
+        conn.execute("DELETE FROM users WHERE id = %s", (user_id,))
+
+
+def count_admins():
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT COUNT(*) AS c FROM users WHERE role = 'admin'"
+    ).fetchone()
+    conn.close()
+    return int(row["c"] if row else 0)

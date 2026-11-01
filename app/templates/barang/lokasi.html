@@ -1,40 +1,71 @@
 {% extends "base.html" %}
 {% block title %}Lokasi{% endblock %}
 {% block page_title %}Lokasi Penyimpanan{% endblock %}
+{% block page_sub %}Master data lokasi inventaris{% endblock %}
 
 {% block content %}
 <div class="split-2">
   <div class="panel">
     <div class="panel-header"><h3>Daftar Lokasi</h3></div>
-    <table>
-      <thead><tr><th>Nama</th><th>Gedung</th><th>Keterangan</th></tr></thead>
-      <tbody>
-        {% for l in items %}
-        <tr>
-          <td>{{ l.nama }}</td>
-          <td>{{ l.gedung or '-' }}</td>
-          <td>{{ l.keterangan or '-' }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Gedung</th>
+            <th>Keterangan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in items %}
+          <tr>
+            <td>{{ l.nama }}</td>
+            <td>{{ l.gedung or '-' }}</td>
+            <td>{{ l.keterangan or '-' }}</td>
+            <td>
+              <div class="btn-group">
+                <a class="btn btn-secondary btn-sm" href="{{ url_for('barang.lokasi', edit=l.id) }}">Edit</a>
+                <form method="post" action="{{ url_for('barang.hapus_lokasi', lokasi_id=l.id) }}" onsubmit="return confirm('Hapus lokasi ini?');">
+                  <button class="btn btn-danger btn-sm" type="submit">Hapus</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty">Belum ada lokasi.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
+
   <div class="panel">
-    <div class="panel-header"><h3>Tambah Lokasi</h3></div>
+    <div class="panel-header">
+      <h3>{{ 'Edit Lokasi' if edit_item else 'Tambah Lokasi' }}</h3>
+    </div>
     <form method="post">
+      {% if edit_item %}
+      <input type="hidden" name="id" value="{{ edit_item.id }}">
+      {% endif %}
       <div style="margin-bottom:0.9rem;">
         <label>Nama Lokasi</label>
-        <input name="nama" required>
+        <input name="nama" required value="{{ edit_item.nama if edit_item else '' }}">
       </div>
       <div style="margin-bottom:0.9rem;">
         <label>Gedung</label>
-        <input name="gedung">
+        <input name="gedung" value="{{ edit_item.gedung if edit_item and edit_item.gedung else '' }}">
       </div>
       <div style="margin-bottom:0.9rem;">
         <label>Keterangan</label>
-        <textarea name="keterangan"></textarea>
+        <textarea name="keterangan">{{ edit_item.keterangan if edit_item and edit_item.keterangan else '' }}</textarea>
       </div>
-      <button class="btn btn-primary" type="submit">Simpan</button>
+      <div class="btn-group">
+        <button class="btn btn-primary" type="submit">{{ 'Perbarui' if edit_item else 'Simpan' }}</button>
+        {% if edit_item %}
+        <a class="btn btn-secondary" href="{{ url_for('barang.lokasi') }}">Batal</a>
+        {% endif %}
+      </div>
     </form>
   </div>
 </div>

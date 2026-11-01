@@ -49,6 +49,7 @@ def create_app():
     from app.routes.peminjaman import peminjaman_bp
     from app.routes.sync import sync_bp
     from app.routes.laporan import laporan_bp
+    from app.routes.users import users_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
@@ -56,5 +57,6 @@ def create_app():
     app.register_blueprint(peminjaman_bp)
     app.register_blueprint(sync_bp)
     app.register_blueprint(laporan_bp)
+    app.register_blueprint(users_bp)
 
     return app

@@ -27,6 +27,9 @@
         <div class="section-label">Master Data</div>
         <a href="{{ url_for('barang.kategori') }}" class="{% if request.endpoint == 'barang.kategori' %}active{% endif %}">Kategori</a>
         <a href="{{ url_for('barang.lokasi') }}" class="{% if request.endpoint == 'barang.lokasi' %}active{% endif %}">Lokasi</a>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('users.index') }}" class="{% if request.endpoint and request.endpoint.startswith('users.') %}active{% endif %}">Administrator</a>
+        {% endif %}
 
         <div class="section-label">Sinkronisasi</div>
         <a href="{{ url_for('sync.index') }}" class="{% if request.endpoint and request.endpoint.startswith('sync.') %}active{% endif %}">Google Drive</a>
